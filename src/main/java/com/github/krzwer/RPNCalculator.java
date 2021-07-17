@@ -1,6 +1,8 @@
 package com.github.krzwer;
 
+import java.util.HashMap;
 import java.util.Stack;
+import java.util.function.BinaryOperator;
 
 public class RPNCalculator {
 
@@ -15,14 +17,8 @@ public class RPNCalculator {
          if (items[i].matches("\\d+")) {
             int num = Integer.parseInt(items[i]);
             argStack.push(num);
-         } else if (items[i].equals("+")) {
-            argStack.push(add(getTopTwoNumbers()));
-         } else if (items[i].equals("-")) {
-            argStack.push(subtract(getTopTwoNumbers()));
-         } else if (items[i].equals("*")) {
-            argStack.push(multiply(getTopTwoNumbers()));
-         } else if (items[i].equals("/")) {
-            argStack.push(divide(getTopTwoNumbers()));
+         } else {
+            argStack.push(Op.perform(items[i], getTopTwoNumbers()));
          }
       }
       return argStack.pop();
@@ -35,21 +31,21 @@ public class RPNCalculator {
       return nums;
    }
 
-   private int add(int[] nums) {
-      return nums[0] + nums[1];
-   }
+   static class Op {
+      static final HashMap<String, BinaryOperator<Integer>> operators =
+            new HashMap<String, BinaryOperator<Integer>>() {
+               {
+                  put("+", (a, b) -> a + b);
+                  put("-", (a, b) -> a - b);
+                  put("*", (a, b) -> a * b);
+                  put("/", (a, b) -> a / b);
+               }
+            };
 
-   private int subtract(int[] nums) {
-      return nums[0] - nums[1];
-   }
+      public static int perform(String operatorSymbol, int[] nums) {
+         return operators.get(operatorSymbol).apply(nums[0], nums[1]);
+      };
 
-   private int multiply(int[] nums) {
-      return nums[0] * nums[1];
    }
-
-   private int divide(int[] nums) {
-      return nums[0] / nums[1];
-   }
-
 
 }
